@@ -1,0 +1,12 @@
+attach(train_set)
+
+t.test(Alvarado_Score ~ Diagnosis)
+t.test(Appendix_Diameter ~ Diagnosis)
+t.test(WBC_Count ~ Diagnosis)
+t.test(Neutrophil_Percentage ~ Diagnosis)
+t.test(Age ~ Diagnosis)
+chisq.test(table(Appendix_on_US,Diagnosis))
+chisq.test(table(Sex,Diagnosis))
+chisq.test(table(Lower_Right_Abd_Pain,Diagnosis))
+chisq.test(table(Neutrophilia,Diagnosis))
+chisq.test(table(Free_Fluids,Diagnosis))
