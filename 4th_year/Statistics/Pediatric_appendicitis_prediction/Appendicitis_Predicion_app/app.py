@@ -96,6 +96,7 @@ def estimate_appendicities(Age, BMI, Sex, Height, Weight, Alvarado_Score, Paedri
     return result, probability
 
 def main():
+    load_artifacts()
     html_temp = """
         <div style="background: linear-gradient(to right, #11998e, #38ef7d); padding: 15px 10px; border-radius: 12px; box-shadow: 0px 4px 10px rgba(0,0,0,0.2);">
             <h2 style="color: white; text-align: center; font-family: 'Segoe UI', sans-serif; margin: 0;">Pediatric Appendicitis Prediction App</h2>
@@ -105,55 +106,113 @@ def main():
     """
 
     st.markdown(html_temp, unsafe_allow_html=True)
+    # Sidebar: App Information and Instructions
+    st.sidebar.title("📚 About this App")
+    st.sidebar.info("""
+    This app predicts the likelihood of pediatric appendicitis using machine learning.
+
+    ### 🔍 How to Use:
+    - Fill out the patient form **OR**
+    - Upload a CSV file with patient data.
+    - Click **Predict** to get the result.
+
+    ### ⚠️ Disclaimer:
+    This tool is for educational or research use only and not intended for clinical diagnosis.
+    """)
+
+    # Optional: Sidebar Links
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("👥 Made by **Group D** - ST 4035")
 
     st.info("Enter the details of the patient below to predict the presence of appendicitis")
-    st.header("Demographic Details of the patient")
+    # 🧑‍⚕️ Demographic Details
+    st.header("🧑‍⚕️ Demographic Details")
+    with st.expander("Enter Demographic Information"):
+        col1, col2 = st.columns(2)
+        with col1:
+            Age = st.number_input('📅 Age', min_value=1, max_value=18, value=10, step=1)
+            BMI = st.number_input('📏 BMI', min_value=1.0, max_value=40.0, value=10.0, step=0.1)
+            Sex = st.selectbox('⚧️ Sex', ['male', 'female'])
+        with col2:
+            Height = st.number_input('📐 Height (cm)', min_value=50.00, max_value=190.00, value=100.00, step=0.01)
+            Weight = st.number_input('⚖️ Weight (kg)', min_value=4.00, max_value=103.00, value=50.00, step=0.01)
 
-    Age = st.number_input('Age', min_value=1, max_value=18, value=10, step=1)
-    BMI = st.number_input('BMI', min_value=1.0, max_value=40.0, value=10.0, step=0.1)
-    Sex = st.selectbox('Sex',['male','female'])
-    Height = st.number_input('Height', min_value=50.00, max_value=190.00, value=100.00, step=0.01)
-    Weight = st.number_input('Weight', min_value=4.00, max_value=103.00, value=50.00, step=0.01)
+    # 📈 Scoring System
+    st.header("📈 Appendicitis Scoring")
+    with st.expander("Enter Score Details"):
+        col1, col2 = st.columns(2)
+        with col1:
+            Alvarado_Score = st.number_input('🧮 Alvarado Score', min_value=1, max_value=10, value=2, step=1)
+        with col2:
+            Paedriatic_Appendicitis_Score = st.number_input('🧮 Pediatric Appendicitis Score', min_value=1, max_value=10,
+                                                            value=2, step=1)
 
-    st.header("Scoring values of the patient")
+    # ⚕️ Clinical Symptoms
+    st.header("⚕️ Clinical Symptoms")
+    with st.expander("Enter Clinical Symptoms"):
+        col1, col2 = st.columns(2)
+        with col1:
+            Migratory_Pain = st.selectbox('➡️ Migratory Pain', ["yes", "no"],
+                                          help="Abdominal pain; usually starts in epigastrium and moves to the right lower quadrant")
+            Contralateral_Rebound_Tenderness = st.selectbox('🔁 Contralateral Rebound Tenderness', ["yes", "no"],
+                                                            help="A state in which pain of the contralateral side (usually, the right lower quadrant) is felt on the release of pressure (usually, in the left lower quadrant) over the abdomen")
+            Nausea = st.selectbox('🤢 Nausea', ["yes", "no"],
+                                  help="Feeling of sickness/ejection of contents from stomach through the mouth")
+            Dysuria = st.selectbox('🔥 Dysuria', ["yes", "no"],
+                                   help="Pain or other difficulty during urination")
+            Peritonitis = st.selectbox('🧊 Peritonitis', ["no", "local", "generalized"],
+                                       help="Spasm of abdominal wall muscles detected on palpation, usually a result of inflammation")
+        with col2:
+            Lower_Right_Abd_Pain = st.selectbox('🩹 Lower Right Abdominal Pain', ["yes", "no"])
+            Coughing_Pain = st.selectbox('💨 Coughing Pain', ["yes", "no"])
+            Loss_of_Appetite = st.selectbox('🍽️ Loss of Appetite', ["yes", "no"])
+            Stool = st.selectbox('🚽 Stool Type', ["normal", "constipation", "diarrhea", "constipation, diarrhea"])
+            Psoas_Sign = st.selectbox('🦵 Psoas Sign', ["yes", "no"],
+                                      help="Abdominal pain produced by extension of the hip")
+        Ipsilateral_Rebound_Tenderness = st.selectbox('↪️ Ipsilateral Rebound Tenderness', ["yes", "no"],
+                                                      help="A state in which pain of the ipsilateral side is felt on the release of pressure over the abdomen")
 
-    Alvarado_Score = st.number_input('Alvarado_Score', min_value=1, max_value=10, value=2, step=1)
-    Paedriatic_Appendicitis_Score = st.number_input('Paedriatic_Appendicitis_Score', min_value=1, max_value=10, value=2, step=1)
+    # 🧪 Laboratory Results
+    st.header("🧪 Laboratory Test Results")
+    with st.expander("Enter Lab Results"):
+        col1, col2 = st.columns(2)
+        with col1:
+            WBC_Count = st.number_input('🧬 WBC Count (10^3/µl)', min_value=2.00, max_value=38.00, value=10.00, step=0.01,
+                                        help="The number of leucocytes in a unit volume of blood; inflammation parameter")
+            Neutrophil_Percentage = st.number_input('🔬 Neutrophil %', min_value=0.00, max_value=100.00, value=10.00,step=0.01,
+                                                    help="Mature WBC in the granulocytic series")
+            Neutrophilia = st.selectbox('🧪 Neutrophilia', ["yes", "no"],
+                                        help="Relative neutrophilic leucocytosis, often a result of a bacterial infection")
+            Hemoglobin = st.number_input('🩸 Hemoglobin (g/dl)', min_value=0.00, max_value=40.0, value=10.0, step=0.1,
+                                         help="Hemoglobin level; a red protein in the red blood cells that contains iron and is responsible for transporting oxygen")
+            RDW = st.number_input('📊 RDW', min_value=0.0, max_value=100.0, value=10.0, step=0.1,
+                                  help="Red cell distribution width (RDW), %")
+            RBC_Count = st.number_input('🔴 RBC Count', min_value=2.00, max_value=15.00, value=10.00, step=0.01,
+                                        help="Red blood cell count (RBC), /pl")
+        with col2:
+            Thrombocyte_Count = st.number_input('🧫 Thrombocyte Count (per nl)', min_value=50, max_value=1000, value=100, step=1,
+                                                help="The number of platelets in a unit volume of bood")
+            Ketones_in_Urine = st.selectbox('🧪 Ketones in Urine', ["no", "+", "++", "+++"],
+                                            help="Presence of ketone bodies in urine, e.g. in case of anorexia")
+            RBC_in_Urine = st.selectbox('🔴 RBC in Urine', ["no", "+", "++", "+++"],
+                                        help="Blood in urine")
+            WBC_in_Urine = st.selectbox('⚪ WBC in Urine', ["no", "+", "++", "+++"],
+                                        help="Leucocytes in urine, e.g., in case of infection")
+            CRP = st.number_input('🔥 CRP (C-Reactive Protein, mg/l)', min_value=0.0, max_value=400.0, value=10.0, step=0.1,
+                                  help="Protein produced by the liver, elevated in case of inflammation, infection, or injury")
+            Body_Temperature = st.number_input('🌡️ Body Temperature (°C)', min_value=20.0, max_value=40.0, value=30.0,
+                                               step=0.1)
 
-    st.header("Clinical details of the patient")
-
-    Migratory_Pain = st.selectbox('Migratory Pain', ["yes", "no"])
-    Lower_Right_Abd_Pain = st.selectbox('Lower_Right_Abd_Pain', ["yes", "no"])
-    Contralateral_Rebound_Tenderness = st.selectbox('Contralateral_Rebound_Tenderness', ["yes", "no"])
-    Coughing_Pain = st.selectbox('Coughing_Pain', ["yes", "no"])
-    Nausea = st.selectbox('Nausea', ["yes", "no"])
-    Loss_of_Appetite = st.selectbox('Loss_of_Appetite', ["yes", "no"])
-    Body_Temperature = st.number_input('Body_Temperature', min_value=20.0, max_value=40.0, value=30.0, step=0.1)
-    Dysuria = st.selectbox('Dysuria', ["yes", "no"])
-    Stool = st.selectbox('Stool', ["normal", "constipation","diarrhea","constipation, diarrhea"])
-    Peritonitis = st.selectbox('Peritonitis',["no","local","generalized"])
-    Psoas_Sign = st.selectbox('Psoas_Sign', ["yes", "no"])
-    Ipsilateral_Rebound_Tenderness = st.selectbox('Ipsilateral_Rebound_Tenderness', ["yes", "no"])
-    
-    st.header("Laboratory test details of the patient")
-
-    WBC_Count = st.number_input('WBC_Count', min_value=2.00, max_value=38.00, value=10.00, step=0.01)
-    Neutrophil_Percentage = st.number_input('Neutrophil_Percentage', min_value=0.00, max_value=100.00, value=10.00, step=0.01)
-    Neutrophilia = st.selectbox('Neutrophilia', ["yes", "no"])
-    RBC_Count = st.number_input('RBC_Count', min_value=2.00, max_value=15.00, value=10.00, step=0.01)
-    Hemoglobin = st.number_input('Hemoglobin', min_value=0.00, max_value=40.0, value=10.0, step=0.1)
-    RDW = st.number_input('RDW', min_value=0.0, max_value=100.0, value=10.0, step=0.1)
-    Thrombocyte_Count = st.number_input('Thrombocyte_Count', min_value=50, max_value=1000, value=100, step=1)
-    Ketones_in_Urine = st.selectbox('Ketones_in_Urine',["no","+","++","+++"])
-    RBC_in_Urine = st.selectbox('RBC_in_Urine',["no","+","++","+++"])
-    WBC_in_Urine = st.selectbox('WBC_in_Urine',["no","+","++","+++"])
-    CRP = st.number_input('CRP', min_value=0.0, max_value=400.0, value=10.0, step=0.1)
-
-    st.header("Ultrasound details of the patient")
-
-    Appendix_on_US = st.selectbox('Appendix_on_US', ["yes", "no"])
-    Appendix_Diameter = st.number_input('Appendix_Diameter', min_value=1.0, max_value=20.0, value=10.0, step=0.1)
-    Free_Fluids = st.selectbox('Free_Fluids', ["yes", "no"])
+    # 🩻 Ultrasound
+    st.header("🩻 Ultrasound Findings")
+    with st.expander("Enter Ultrasound Data"):
+        col1, col2 = st.columns(2)
+        with col1:
+            Appendix_on_US = st.selectbox('📸 Appendix visible on US?', ["yes", "no"])
+            Free_Fluids = st.selectbox('💧 Free Fluids Present?', ["yes", "no"])
+        with col2:
+            Appendix_Diameter = st.number_input('📏 Appendix Diameter (mm)', min_value=1.0, max_value=20.0, value=10.0,
+                                                step=0.1)
 
     if "show_result" not in st.session_state:
         st.session_state.show_result = False
@@ -192,6 +251,54 @@ def main():
             for key in st.session_state.keys():
                 del st.session_state[key]
             st.rerun()
+
+    st.markdown("---")
+    st.subheader("Get predictions by uploading a dataset")
+    st.info("Upload a dataset and get your predictions!")
+
+    uploaded_file = st.file_uploader("Upload your CSV file", type=['csv'])
+    if uploaded_file is not None:
+        input_df = pd.read_csv(uploaded_file)
+        input_df_1 = input_df.drop('patientID', axis=1)
+
+        expected_columns = ['Age', 'BMI', 'Sex', 'Height', 'Weight', 'Alvarado_Score',
+           'Paedriatic_Appendicitis_Score', 'Appendix_on_US', 'Appendix_Diameter',
+           'Migratory_Pain', 'Lower_Right_Abd_Pain',
+           'Contralateral_Rebound_Tenderness', 'Coughing_Pain', 'Nausea',
+           'Loss_of_Appetite', 'Body_Temperature', 'WBC_Count',
+           'Neutrophil_Percentage', 'Neutrophilia', 'RBC_Count', 'Hemoglobin',
+           'RDW', 'Thrombocyte_Count', 'Ketones_in_Urine', 'RBC_in_Urine',
+           'WBC_in_Urine', 'CRP', 'Dysuria', 'Stool', 'Peritonitis', 'Psoas_Sign',
+           'Ipsilateral_Rebound_Tenderness', 'Free_Fluids']
+
+        input_df_1 = input_df_1[expected_columns]
+
+        base_path = os.path.dirname(__file__)
+        pipeline_path = os.path.join(base_path, 'artifacts', 'pipeline.pickle')
+        pipeline = joblib.load(pipeline_path)
+        transformed_data = pipeline.transform(input_df_1)
+        prediction = model.predict(transformed_data)
+        pred_proba = model.predict_proba(transformed_data)[:,1]
+        prediction = pd.Series(prediction)
+        prediction = prediction.apply(lambda x: 'Appendicitis' if x == 1 else 'No Appendicitis')
+        pred_proba = pd.Series(pred_proba)
+
+        result = pd.DataFrame({
+            'patientID': input_df['patientID'],
+            'Diagnosis': prediction,
+            'Diagnosis probability': (pred_proba * 100).apply(lambda x: f'{x:.2f}%')
+        })
+
+        st.dataframe(result)
+
+        no_churn = len(result[result['Diagnosis'] == 'Appendicitis'])
+        total = len(result)
+        percentage = np.round((no_churn / total * 100), 2)
+
+        st.info(f"{percentage}% of patients likely to have appendicitis")
+
+    else:
+        st.warning("Please upload a dataset and get your predictions!")
 
 if __name__ == '__main__':
     main()
