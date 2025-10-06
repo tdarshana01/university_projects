@@ -5,6 +5,7 @@ import pickle
 import joblib
 import os
 import json
+import cloudpickle
 
 model = None
 data_columns = None
@@ -19,6 +20,7 @@ def load_artifacts():
     scale_columns_path = os.path.join(base_path,'artifacts','columns_to_scale.json')
     model_path = os.path.join(base_path,'artifacts','model.pickle')
     scale_path = os.path.join(base_path,'artifacts','scaler.pickle')
+    pipeline_path = os.path.join(base_path,'artifacts','pipeline1.pickle')
 
     with open(columns_path,'r') as f:
         data = json.load(f)
@@ -33,6 +35,9 @@ def load_artifacts():
 
     with open(scale_path,'rb') as f:
         scale = joblib.load(f)
+
+    with open(pipeline_path,'rb') as f:
+        pipeline = cloudpickle.load(f)
 
 
 def estimate_appendicities(Age, BMI, Sex, Height, Weight, Alvarado_Score, Paedriatic_Appendicitis_Score, Appendix_on_US,
@@ -302,3 +307,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
