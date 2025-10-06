@@ -11,9 +11,10 @@ model = None
 data_columns = None
 columns_to_scale = None
 scale = None
+pipeline = None
 
 def load_artifacts():
-    global model, data_columns, scale, columns_to_scale
+    global model, data_columns, scale, columns_to_scale, pipeline
 
     base_path = os.path.dirname(__file__)
     columns_path = os.path.join(base_path,'artifacts','data_columns.json')
@@ -278,9 +279,9 @@ def main():
 
         input_df_1 = input_df_1[expected_columns]
 
-        base_path = os.path.dirname(__file__)
-        pipeline_path = os.path.join(base_path, 'artifacts', 'pipeline.pickle')
-        pipeline = joblib.load(pipeline_path)
+        #base_path = os.path.dirname(__file__)
+        #pipeline_path = os.path.join(base_path, 'artifacts', 'pipeline.pickle')
+        #pipeline = joblib.load(pipeline_path)
         transformed_data = pipeline.transform(input_df_1)
         prediction = model.predict(transformed_data)
         pred_proba = model.predict_proba(transformed_data)[:,1]
@@ -307,4 +308,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
