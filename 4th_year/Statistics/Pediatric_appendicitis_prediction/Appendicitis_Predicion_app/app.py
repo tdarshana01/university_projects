@@ -5,23 +5,20 @@ import pickle
 import joblib
 import os
 import json
-import cloudpickle
 
 model = None
 data_columns = None
 columns_to_scale = None
 scale = None
-pipeline = None
 
 def load_artifacts():
-    global model, data_columns, scale, columns_to_scale, pipeline
+    global model, data_columns, scale, columns_to_scale
 
     base_path = os.path.dirname(__file__)
     columns_path = os.path.join(base_path,'artifacts','data_columns.json')
     scale_columns_path = os.path.join(base_path,'artifacts','columns_to_scale.json')
     model_path = os.path.join(base_path,'artifacts','model.pickle')
     scale_path = os.path.join(base_path,'artifacts','scaler.pickle')
-    pipeline_path = os.path.join(base_path,'artifacts','pipeline1.pickle')
 
     with open(columns_path,'r') as f:
         data = json.load(f)
@@ -37,8 +34,6 @@ def load_artifacts():
     with open(scale_path,'rb') as f:
         scale = joblib.load(f)
 
-    with open(pipeline_path,'rb') as f:
-        pipeline = cloudpickle.load(f)
 
 
 def estimate_appendicities(Age, BMI, Sex, Height, Weight, Alvarado_Score, Paedriatic_Appendicitis_Score, Appendix_on_US,
@@ -279,12 +274,11 @@ def main():
 
         input_df_1 = input_df_1[expected_columns]
 
-        #base_path = os.path.dirname(__file__)
-        #pipeline_path = os.path.join(base_path, 'artifacts', 'pipeline.pickle')
-        #pipeline = joblib.load(pipeline_path)
-        transformed_data = pipeline.transform(input_df_1)
-        prediction = model.predict(transformed_data)
-        pred_proba = model.predict_proba(transformed_data)[:,1]
+        base_path = os.path.dirname(__file__)
+        pipeline_path = os.path.join(base_path, 'artifacts', 'full_pipeline.pickle')
+        pipeline = joblib.load(pipeline_path)
+        prediction = pipeline.predict(input_df_1)
+        pred_proba = pipeline.predict_proba(input_df_1)[:,1]
         prediction = pd.Series(prediction)
         prediction = prediction.apply(lambda x: 'Appendicitis' if x == 1 else 'No Appendicitis')
         pred_proba = pd.Series(pred_proba)
@@ -308,5 +302,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
