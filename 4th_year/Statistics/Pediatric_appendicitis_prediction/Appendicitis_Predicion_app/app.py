@@ -121,9 +121,6 @@ def main():
     This tool is for educational or research use only and not intended for clinical diagnosis.
     """)
 
-    # Optional: Sidebar Links
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("👥 Made by **Group D** - ST 4035")
 
     st.info("Enter the details of the patient below to predict the presence of appendicitis")
     # 🧑‍⚕️ Demographic Details
@@ -302,6 +299,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+
 
 
 
