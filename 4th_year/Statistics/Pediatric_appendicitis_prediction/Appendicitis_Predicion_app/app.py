@@ -35,7 +35,6 @@ def load_artifacts():
         scale = joblib.load(f)
 
 
-
 def estimate_appendicities(Age, BMI, Sex, Height, Weight, Alvarado_Score, Paedriatic_Appendicitis_Score, Appendix_on_US,
                            Appendix_Diameter, Migratory_Pain, Lower_Right_Abd_Pain, Contralateral_Rebound_Tenderness,
                            Coughing_Pain, Nausea, Loss_of_Appetite, Body_Temperature, WBC_Count, Neutrophil_Percentage,
@@ -121,6 +120,9 @@ def main():
     This tool is for educational or research use only and not intended for clinical diagnosis.
     """)
 
+    # Optional: Sidebar Links
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("👥 Made by **Group D** - ST 4035")
 
     st.info("Enter the details of the patient below to predict the presence of appendicitis")
     # 🧑‍⚕️ Demographic Details
@@ -129,11 +131,15 @@ def main():
         col1, col2 = st.columns(2)
         with col1:
             Age = st.number_input('📅 Age', min_value=1, max_value=18, value=10, step=1)
-            BMI = st.number_input('📏 BMI', min_value=1.0, max_value=40.0, value=10.0, step=0.1)
             Sex = st.selectbox('⚧️ Sex', ['male', 'female'])
         with col2:
             Height = st.number_input('📐 Height (cm)', min_value=50.00, max_value=190.00, value=100.00, step=0.01)
             Weight = st.number_input('⚖️ Weight (kg)', min_value=4.00, max_value=103.00, value=50.00, step=0.01)
+            Height_m = Height / 100.0
+
+            # Calculate BMI based on height and weight
+            BMI = Weight / (Height_m ** 2)
+            st.write(f'📏 Calculated BMI: {BMI:.2f}')
 
     # 📈 Scoring System
     st.header("📈 Appendicitis Scoring")
@@ -205,12 +211,20 @@ def main():
     st.header("🩻 Ultrasound Findings")
     with st.expander("Enter Ultrasound Data"):
         col1, col2 = st.columns(2)
+
         with col1:
             Appendix_on_US = st.selectbox('📸 Appendix visible on US?', ["yes", "no"])
             Free_Fluids = st.selectbox('💧 Free Fluids Present?', ["yes", "no"])
+
         with col2:
-            Appendix_Diameter = st.number_input('📏 Appendix Diameter (mm)', min_value=1.0, max_value=20.0, value=10.0,
-                                                step=0.1)
+            if Appendix_on_US == "yes":
+                # Only allow input for Appendix Diameter if Appendix is visible on US
+                Appendix_Diameter = st.number_input('📏 Appendix Diameter (mm)', min_value=1.0, max_value=20.0,
+                                                    value=10.0, step=0.1)
+            else:
+                # Automatically set Appendix Diameter to 7.8 if Appendix is not visible
+                Appendix_Diameter = 7.8
+                st.write(f"📏 Appendix Diameter is set to {Appendix_Diameter} mm")
 
     if "show_result" not in st.session_state:
         st.session_state.show_result = False
@@ -299,7 +313,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
